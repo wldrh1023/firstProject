@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # MariaDB 데이터베이스
+  database:
+    image: mariadb:11.0
+    container_name: connecthub-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: connecthub
+      MYSQL_USER: connecthub
+      MYSQL_PASSWORD: connecthub123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - connecthub-network
+    restart: unless-stopped
+
+  # Spring Boot 백엔드
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: connecthub-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mariadb://database:3306/connecthub
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - connecthub-network
+    restart: unless-stopped
+
+  # Vue.js 프론트엔드
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: connecthub-frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080/api
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - connecthub-network
+    restart: unless-stopped
+
+volumes:
+  mariadb_data:
+
+networks:
+  connecthub-network:
+    driver: bridge
