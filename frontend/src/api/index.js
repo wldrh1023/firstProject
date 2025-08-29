@@ -1,5 +1,0 @@
-export { authAPI } from './auth'
-export { usersAPI } from './users'
-export { postsAPI } from './posts'
-export { socialAPI } from './social'
-export { default as apiClient } from './client'
