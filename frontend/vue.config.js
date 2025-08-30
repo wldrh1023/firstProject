@@ -5,6 +5,11 @@ module.exports = {
         target: "http://localhost:8080",
       },
     },
+    watchOptions: {
+      ignored: ["**/node_modules", "**/dist", "C:\\**"],
+      poll: 1000,
+      aggregateTimeout: 300,
+    },
   },
   lintOnSave: false,
   chainWebpack: (config) => {

@@ -11,78 +11,64 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import com.cheonmyo.shop.entity.Cart;
-import com.cheonmyo.shop.entity.Item;
-import com.cheonmyo.shop.repository.CartRepository;
-import com.cheonmyo.shop.repository.ItemRepository;
-import com.cheonmyo.shop.service.JwtService;
 import org.springframework.web.bind.annotation.CrossOrigin;
+
+import com.cheonmyo.shop.dto.CartResponseDto;
+import com.cheonmyo.shop.exception.UnauthorizedException;
+import com.cheonmyo.shop.service.CartService;
+import com.cheonmyo.shop.service.JwtService;
 
 @RestController
 @CrossOrigin(origins = "*")
 public class CartController {
 
   @Autowired
-  JwtService jwtService;
+  private JwtService jwtService;
 
   @Autowired
-  CartRepository cartRepository;
-
-  @Autowired
-  ItemRepository itemRepository;
+  private CartService cartService;
 
   @GetMapping("/api/cart/items")
-  public ResponseEntity getCartItems(@CookieValue(value = "token", required = false) String token) {
+  public ResponseEntity<List<CartResponseDto>> getCartItems(
+      @CookieValue(value = "token", required = false) String token) {
 
     if (!jwtService.isValid(token)) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException();
     }
 
     int memberId = jwtService.getId(token);
-    List<Cart> carts = cartRepository.findByMemberId(memberId);
-    List<Integer> itemIds = carts.stream().map(Cart::getItemId).toList();
-    List<Item> items = itemRepository.findByIdIn(itemIds);
+    List<CartResponseDto> cartItems = cartService.getCartItems(memberId);
 
-    return new ResponseEntity<>(items, HttpStatus.OK);
+    return new ResponseEntity<>(cartItems, HttpStatus.OK);
   }
 
   @PostMapping("/api/cart/items/{itemId}")
-  public ResponseEntity pushCartItem(
+  public ResponseEntity<Void> pushCartItem(
       @PathVariable("itemId") int itemId,
       @CookieValue(value = "token", required = false) String token) {
 
     if (!jwtService.isValid(token)) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException();
     }
 
     int memberId = jwtService.getId(token);
-    Cart cart = cartRepository.findByMemberIdAndItemId(memberId, itemId);
-
-    if (cart == null) {
-      Cart newCart = new Cart();
-      newCart.setMemberId(memberId);
-      newCart.setItemId(itemId);
-      cartRepository.save(newCart);
-    }
+    cartService.addCartItem(memberId, itemId);
 
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @DeleteMapping("/api/cart/items/{itemId}")
-  public ResponseEntity removeCartItem(
+  public ResponseEntity<Void> removeCartItem(
       @PathVariable("itemId") int itemId,
       @CookieValue(value = "token", required = false) String token) {
 
     if (!jwtService.isValid(token)) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException();
     }
 
     int memberId = jwtService.getId(token);
-    Cart cart = cartRepository.findByMemberIdAndItemId(memberId, itemId);
+    cartService.removeCartItem(memberId, itemId);
 
-    cartRepository.delete(cart);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }

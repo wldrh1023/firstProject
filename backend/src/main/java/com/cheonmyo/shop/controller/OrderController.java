@@ -7,68 +7,68 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.cheonmyo.shop.dto.OrderDto;
-import com.cheonmyo.shop.entity.Order;
-import com.cheonmyo.shop.repository.CartRepository;
-import com.cheonmyo.shop.repository.OrderRepository;
+import com.cheonmyo.shop.dto.OrderRequestDto;
+import com.cheonmyo.shop.dto.OrderResponseDto;
+import com.cheonmyo.shop.exception.UnauthorizedException;
 import com.cheonmyo.shop.service.JwtService;
-
-import jakarta.transaction.Transactional;
+import com.cheonmyo.shop.service.OrderService;
 
 @RestController
 @CrossOrigin(origins = "*")
 public class OrderController {
 
   @Autowired
-  OrderRepository orderRepository;
+  private OrderService orderService;
 
   @Autowired
-  CartRepository cartRepository;
-
-  @Autowired
-  JwtService jwtService;
+  private JwtService jwtService;
 
   @GetMapping("/api/orders")
-  public ResponseEntity getOrder(
+  public ResponseEntity<List<OrderResponseDto>> getOrder(
       @CookieValue(value = "token", required = false) String token) {
 
     if (!jwtService.isValid(token)) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException();
     }
 
     int memberId = jwtService.getId(token);
-    List<Order> orders = orderRepository.findByMemberIdOrderByIdDesc(memberId);
+    List<OrderResponseDto> orders = orderService.getOrders(memberId);
     return new ResponseEntity<>(orders, HttpStatus.OK);
   }
 
-  @Transactional
   @PostMapping("/api/orders")
-  public ResponseEntity pushOrder(
-      @RequestBody OrderDto dto,
+  public ResponseEntity<Void> pushOrder(
+      @RequestBody OrderRequestDto dto,
       @CookieValue(value = "token", required = false) String token) {
 
     if (!jwtService.isValid(token)) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException();
     }
 
     int memberId = jwtService.getId(token);
-    Order newOrder = new Order();
+    orderService.createOrder(memberId, dto);
 
-    newOrder.setMemberId(memberId);
-    newOrder.setName(dto.getName());
-    newOrder.setAddress(dto.getAddress());
-    newOrder.setPayment(dto.getPayment());
-    newOrder.setCardNumber(dto.getCardNumber());
-    newOrder.setItems(dto.getItems());
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 
-    orderRepository.save(newOrder);
-    cartRepository.deleteByMemberId(memberId);
+  @DeleteMapping("/api/orders/{orderId}")
+  public ResponseEntity<Void> deleteOrder(
+      @PathVariable Integer orderId,
+      @CookieValue(value = "token", required = false) String token) {
+
+    if (!jwtService.isValid(token)) {
+      throw new UnauthorizedException();
+    }
+
+    int memberId = jwtService.getId(token);
+    orderService.deleteOrder(memberId, orderId);
 
     return new ResponseEntity<>(HttpStatus.OK);
   }

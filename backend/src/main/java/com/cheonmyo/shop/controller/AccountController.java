@@ -1,7 +1,5 @@
 package com.cheonmyo.shop.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.cheonmyo.shop.entity.Member;
-import com.cheonmyo.shop.repository.MemberRepository;
+import com.cheonmyo.shop.dto.LoginRequestDto;
+import com.cheonmyo.shop.dto.LoginResponseDto;
+import com.cheonmyo.shop.service.AccountService;
 import com.cheonmyo.shop.service.JwtService;
 
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -26,30 +23,25 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AccountController {
 
   @Autowired
-  MemberRepository memberRepository;
+  private AccountService accountService;
 
   @Autowired
-  JwtService jwtService;
+  private JwtService jwtService;
 
   @PostMapping("/api/account/login")
-  public ResponseEntity login(@RequestBody Map<String, String> params,
+  public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request,
       HttpServletResponse res) {
-    Member member = memberRepository.findByEmailAndPassword(params.get("email"), params.get("password"));
+    LoginResponseDto response = accountService.login(request);
 
-    if (member != null) {
-      int id = member.getId();
-      String token = jwtService.getToken("id", id);
+    String token = jwtService.getToken("id", response.getMemberId());
 
-      Cookie cookie = new Cookie("token", token);
-      cookie.setHttpOnly(true);
-      cookie.setPath("/");
+    Cookie cookie = new Cookie("token", token);
+    cookie.setHttpOnly(true);
+    cookie.setPath("/");
 
-      res.addCookie(cookie);
+    res.addCookie(cookie);
 
-      return new ResponseEntity<>(id, HttpStatus.OK);
-    }
-
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
   @PostMapping("/api/account/logout")
@@ -63,14 +55,8 @@ public class AccountController {
   }
 
   @GetMapping("/api/account/check")
-  public ResponseEntity check(@CookieValue(value = "token", required = false) String token) {
-    Claims claims = jwtService.getClaims(token);
-
-    if (claims != null) {
-      int id = Integer.parseInt(claims.get("id").toString());
-      return new ResponseEntity<>(id, HttpStatus.OK);
-    }
-
-    return new ResponseEntity<>(null, HttpStatus.OK);
+  public ResponseEntity<Integer> check(@CookieValue(value = "token", required = false) String token) {
+    Integer memberId = accountService.checkAuth(token);
+    return new ResponseEntity<>(memberId, HttpStatus.OK);
   }
 }

@@ -19,7 +19,7 @@
         </div>
 
         <!-- 데이터 표시 -->
-        <div v-else class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="col" v-for="(item, i) in state.items" :key="i">
             <CardComponent :item="item" />
           </div>
@@ -30,9 +30,9 @@
 </template>
 
 <script>
-import axios from 'axios';
 import CardComponent from '@/components/Card.vue';
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
+import { itemsAPI } from '@/api';
 
 export default {
   name: "HomeComponent",
@@ -42,14 +42,27 @@ export default {
   setup() {
     const state = reactive({
       items: [],
+      loading: true,
+      error: null
     })
 
     // 데이터 로딩
-    axios.get("/api/items")
-      .then(({ data }) => {
+    const loadItems = async () => {
+      try {
+        state.loading = true;
+        const { data } = await itemsAPI.getItems();
         state.items = data;
-      })
+      } catch (error) {
+        console.error('아이템 로딩 실패:', error);
+        state.error = '상품을 불러오는데 실패했습니다.';
+      } finally {
+        state.loading = false;
+      }
+    };
 
+    onMounted(() => {
+      loadItems();
+    });
 
     return { state }
   }

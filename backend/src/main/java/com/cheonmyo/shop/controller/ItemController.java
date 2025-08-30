@@ -6,19 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cheonmyo.shop.entity.Item;
-import com.cheonmyo.shop.repository.ItemRepository;
+import com.cheonmyo.shop.dto.ItemResponseDto;
+import com.cheonmyo.shop.service.ItemService;
 
 @RestController
 public class ItemController {
 
   @Autowired
-  ItemRepository itemRepository;
+  private ItemService itemService;
 
   @GetMapping("/api/items")
-  public List<Item> getItems() {
-    List<Item> items = itemRepository.findAll();
-
-    return items;
+  public List<ItemResponseDto> getItems() {
+    return itemService.getAllItems();
   }
 }
