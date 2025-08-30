@@ -2,8 +2,10 @@ package com.cheonmyo.shop.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "members")
 public class Member extends BaseEntity {

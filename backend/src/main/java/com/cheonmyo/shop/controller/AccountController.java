@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cheonmyo.shop.dto.LoginRequestDto;
 import com.cheonmyo.shop.dto.LoginResponseDto;
+import com.cheonmyo.shop.dto.SignupRequestDto;
+import com.cheonmyo.shop.dto.SignupResponseDto;
 import com.cheonmyo.shop.service.AccountService;
 import com.cheonmyo.shop.service.JwtService;
 
@@ -19,7 +20,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@CrossOrigin(origins = "*")
 public class AccountController {
 
   @Autowired
@@ -58,5 +58,29 @@ public class AccountController {
   public ResponseEntity<Integer> check(@CookieValue(value = "token", required = false) String token) {
     Integer memberId = accountService.checkAuth(token);
     return new ResponseEntity<>(memberId, HttpStatus.OK);
+  }
+
+  @GetMapping("/api/health")
+  public ResponseEntity<String> health() {
+    System.out.println("=== 헬스체크 API 호출됨 ===");
+    return new ResponseEntity<>("OK", HttpStatus.OK);
+  }
+
+  @PostMapping("/api/account/signup")
+  public ResponseEntity<SignupResponseDto> signup(@RequestBody SignupRequestDto request) {
+    System.out.println("=== 회원가입 API 호출됨 ===");
+    System.out.println("요청 받음: " + request);
+    System.out.println("이메일: " + request.getEmail());
+    System.out.println("비밀번호: " + request.getPassword());
+
+    try {
+      SignupResponseDto response = accountService.signup(request);
+      System.out.println("회원가입 성공: " + response.getMessage());
+      return new ResponseEntity<>(response, HttpStatus.OK);
+    } catch (Exception e) {
+      System.out.println("회원가입 실패: " + e.getMessage());
+      e.printStackTrace();
+      throw e;
+    }
   }
 }

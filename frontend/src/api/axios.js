@@ -2,9 +2,19 @@ import axios from "axios";
 import { useAuthStore } from "@/stores/auth";
 import { useNotificationStore } from "@/stores/notification";
 
+// 환경에 따른 baseURL 설정
+const getBaseURL = () => {
+  // 개발 환경에서는 빈 문자열 (프록시 사용)
+  if (import.meta.env.DEV) {
+    return "";
+  }
+  // 프로덕션 환경에서는 실제 서버 주소 사용
+  return import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+};
+
 // Axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: "", // 백엔드 서버 주소 // 상대 경로 사용
+  baseURL: getBaseURL(),
   timeout: 10000,
   withCredentials: true, // 쿠키 포함
 });

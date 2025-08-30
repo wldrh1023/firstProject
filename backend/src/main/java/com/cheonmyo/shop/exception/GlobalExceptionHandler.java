@@ -38,11 +38,16 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleException(Exception e) {
+    // 에러 로깅 추가
+    System.err.println("=== 500 에러 발생 ===");
+    System.err.println("에러 타입: " + e.getClass().getSimpleName());
+    System.err.println("에러 메시지: " + e.getMessage());
+    e.printStackTrace();
+
     ErrorResponse errorResponse = new ErrorResponse(
         "INTERNAL_SERVER_ERROR",
-        "서버 내부 오류가 발생했습니다.",
+        "서버 내부 오류가 발생했습니다: " + e.getMessage(),
         HttpStatus.INTERNAL_SERVER_ERROR.value());
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
-

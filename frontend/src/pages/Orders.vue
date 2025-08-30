@@ -44,7 +44,6 @@
                 </div>
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900">주문 #{{ order.id || (state.orders.length - idx) }}</h3>
-                  <p class="text-sm text-gray-500">{{ formatDate(order.createdAt) }}</p>
                   <p class="text-xs text-gray-400">ID: {{ order.id }}</p>
                 </div>
               </div>
@@ -158,18 +157,55 @@ export default {
     })
 
     const formatDate = (dateString) => {
-      if (!dateString) return '날짜 정보 없음';
+      if (!dateString || dateString === '날짜 정보 없음') return '날짜 정보 없음';
 
       try {
-        const date = new Date(dateString);
+        // String을 Date 객체로 변환 (yyyy-MM-dd HH:mm:ss 형식)
+        const date = new Date(dateString.replace(' ', 'T'));
+        const now = new Date();
+        const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+        const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+
+        // 상대적 시간 표시
+        if (diffInHours < 1) {
+          const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+          return `${diffInMinutes}분 전`;
+        } else if (diffInHours < 24) {
+          return `${diffInHours}시간 전`;
+        } else if (diffInDays < 7) {
+          return `${diffInDays}일 전`;
+        } else {
+          // 7일 이상 지난 경우 절대 시간 표시
+          return date.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        }
+      } catch (error) {
+        console.error('날짜 파싱 오류:', error);
+        return '날짜 정보 없음';
+      }
+    }
+
+    const formatFullDate = (dateString) => {
+      if (!dateString || dateString === '날짜 정보 없음') return '날짜 정보 없음';
+
+      try {
+        // String을 Date 객체로 변환
+        const date = new Date(dateString.replace(' ', 'T'));
         return date.toLocaleDateString('ko-KR', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
+          second: '2-digit'
         });
       } catch (error) {
+        console.error('날짜 파싱 오류:', error);
         return '날짜 정보 없음';
       }
     }
@@ -198,9 +234,8 @@ export default {
       try {
         state.loading = true;
         const { data } = await ordersAPI.getOrders();
-        state.orders = [];
-
         for (let d of data) {
+
           if (d.items) {
             d.items = JSON.parse(d.items);
           }
@@ -242,6 +277,7 @@ export default {
       state,
       lib,
       formatDate,
+      formatFullDate,
       getPaymentMethodText,
       calculateTotal,
       deleteOrder,

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Home from "@/pages/Home.vue";
 import Login from "@/pages/Login.vue";
+import Signup from "@/pages/Signup.vue";
 import Cart from "@/pages/Cart.vue";
 import Order from "@/pages/Order.vue";
 import Orders from "@/pages/Orders.vue";
@@ -16,6 +17,12 @@ const routes = [
     path: "/login",
     component: Login,
     name: "Login",
+    meta: { requiresGuest: true }, // 로그인된 사용자는 접근 불가
+  },
+  {
+    path: "/signup",
+    component: Signup,
+    name: "Signup",
     meta: { requiresGuest: true }, // 로그인된 사용자는 접근 불가
   },
   {

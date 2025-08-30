@@ -31,4 +31,5 @@ public class Order extends BaseEntity {
 
   @Column(length = 500, nullable = false)
   private String items;
+
 }

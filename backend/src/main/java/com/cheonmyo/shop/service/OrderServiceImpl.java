@@ -26,26 +26,42 @@ public class OrderServiceImpl implements OrderService {
   @Override
   public List<OrderResponseDto> getOrders(int memberId) {
     List<Order> orders = orderRepository.findByMemberIdOrderByIdDesc(memberId);
-    return orders.stream()
-        .map(OrderResponseDto::new)
+
+    List<OrderResponseDto> result = orders.stream()
+        .map(order -> {
+          OrderResponseDto dto = new OrderResponseDto(order);
+
+          return dto;
+        })
         .collect(Collectors.toList());
+
+    return result;
   }
 
   @Override
   @Transactional
   public void createOrder(int memberId, OrderRequestDto request) {
-    Order newOrder = new Order();
-    newOrder.setMemberId(memberId);
-    newOrder.setName(request.getName());
-    newOrder.setAddress(request.getAddress());
-    newOrder.setPayment(request.getPayment());
-    newOrder.setCardNumber(request.getCardNumber());
-    newOrder.setItems(request.getItems());
+    try {
+      System.out.println("=== 주문 생성 시작 ===");
+      System.out.println("memberId: " + memberId);
 
-    Order savedOrder = orderRepository.save(newOrder);
-    cartRepository.deleteByMemberId(memberId);
+      Order newOrder = new Order();
+      newOrder.setMemberId(memberId);
+      newOrder.setName(request.getName());
+      newOrder.setAddress(request.getAddress());
+      newOrder.setPayment(request.getPayment());
+      newOrder.setCardNumber(request.getCardNumber());
+      newOrder.setItems(request.getItems());
 
-    System.out.println("주문 생성 완료 - ID: " + savedOrder.getId() + ", 생성시간: " + savedOrder.getCreatedAt());
+      cartRepository.deleteByMemberId(memberId);
+      System.out.println("=== 주문 생성 완료 ===");
+    } catch (Exception e) {
+      System.err.println("=== 주문 생성 중 오류 발생 ===");
+      System.err.println("에러 타입: " + e.getClass().getSimpleName());
+      System.err.println("에러 메시지: " + e.getMessage());
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   @Override

@@ -18,9 +18,8 @@ public class DataInitializer implements CommandLineRunner {
   public void run(String... args) throws Exception {
     // 테스트 회원 추가
     if (memberRepository.count() == 0) {
-      Member testMember = new Member("test@example.com", "password123");
-      memberRepository.save(testMember);
-      System.out.println("테스트 회원이 생성되었습니다: " + testMember.getEmail());
+      
+      System.out.println("테스트 회원이 생성되었습니다: ");
     }
 
     System.out.println("테스트 데이터 초기화가 완료되었습니다.");

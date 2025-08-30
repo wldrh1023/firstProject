@@ -2,6 +2,8 @@ package com.cheonmyo.shop.service;
 
 import com.cheonmyo.shop.dto.LoginRequestDto;
 import com.cheonmyo.shop.dto.LoginResponseDto;
+import com.cheonmyo.shop.dto.SignupRequestDto;
+import com.cheonmyo.shop.dto.SignupResponseDto;
 import com.cheonmyo.shop.entity.Member;
 import com.cheonmyo.shop.exception.NotFoundException;
 import com.cheonmyo.shop.repository.MemberRepository;
@@ -44,5 +46,22 @@ public class AccountServiceImpl implements AccountService {
     }
 
     return null;
+  }
+
+  @Override
+  public SignupResponseDto signup(SignupRequestDto request) {
+    // 이메일 중복 확인
+    if (memberRepository.findByEmail(request.getEmail()) != null) {
+      return new SignupResponseDto("이미 존재하는 이메일입니다.", false);
+    }
+
+    // 새 회원 생성
+    Member newMember = new Member();
+    newMember.setEmail(request.getEmail());
+    newMember.setPassword(request.getPassword());
+
+    memberRepository.save(newMember);
+
+    return new SignupResponseDto("회원가입이 완료되었습니다.", true);
   }
 }

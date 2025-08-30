@@ -36,6 +36,15 @@
             {{ loading ? '로그인 중...' : '로그인' }}
           </button>
         </div>
+
+        <div class="text-center">
+          <p class="text-sm text-gray-600">
+            계정이 없으신가요?
+            <router-link to="/signup" class="font-medium text-primary-600 hover:text-primary-500">
+              회원가입하기
+            </router-link>
+          </p>
+        </div>
       </div>
 
       <div class="text-center">

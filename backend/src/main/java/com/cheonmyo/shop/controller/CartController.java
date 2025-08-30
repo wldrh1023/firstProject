@@ -19,7 +19,6 @@ import com.cheonmyo.shop.service.CartService;
 import com.cheonmyo.shop.service.JwtService;
 
 @RestController
-@CrossOrigin(origins = "*")
 public class CartController {
 
   @Autowired

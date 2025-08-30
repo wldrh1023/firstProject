@@ -1,8 +1,10 @@
 package com.cheonmyo.shop.dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class OrderRequestDto {
 
   private String name;
@@ -10,4 +12,5 @@ public class OrderRequestDto {
   private String payment;
   private String cardNumber;
   private String items;
+  private String time;
 }
