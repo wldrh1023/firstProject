@@ -18,10 +18,10 @@ COPY src/ src/
 RUN gradle build --no-daemon -x test
 
 # 실행 스테이지
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre-alpine
 
 # 헬스체크를 위한 curl 설치
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl
 
 # 작업 디렉토리 설정
 WORKDIR /app
