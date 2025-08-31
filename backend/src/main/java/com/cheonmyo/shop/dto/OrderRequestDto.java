@@ -13,4 +13,16 @@ public class OrderRequestDto {
   private String cardNumber;
   private String items;
   private String time;
+
+  @Override
+  public String toString() {
+    return "OrderRequestDto{" +
+        "name='" + name + '\'' +
+        ", address='" + address + '\'' +
+        ", payment='" + payment + '\'' +
+        ", cardNumber='" + cardNumber + '\'' +
+        ", items='" + items + '\'' +
+        ", time='" + time + '\'' +
+        '}';
+  }
 }

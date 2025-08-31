@@ -1,6 +1,9 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- 확인 모달 -->
+      <ConfirmModal :show="showConfirmModal" title="상품 제거" message="정말로 이 상품을 장바구니에서 제거하시겠습니까?" @confirm="confirmRemove"
+        @cancel="cancelRemove" />
       <div class="bg-white shadow-lg rounded-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
           <h1 class="text-2xl font-bold text-gray-900">장바구니</h1>
@@ -34,8 +37,8 @@
               <div class="ml-6 flex-1">
                 <div class="flex items-center justify-between">
                   <div>
-                    <h3 class="text-lg font-medium text-gray-900">{{ i.name }}</h3>
-                    <p class="text-sm text-gray-500">상품 ID: {{ i.id }}</p>
+                    <h3 class="text-lg font-medium text-gray-900">{{ i.itemName }}</h3>
+                    <p class="text-sm text-gray-500">상품 ID: {{ i.itemId }}</p>
                   </div>
                   <div class="flex items-center space-x-4">
                     <div class="text-right">
@@ -46,7 +49,7 @@
                         {{ i.discountPer }}% 할인
                       </p>
                     </div>
-                    <button @click="remove(i.id)" class="text-red-600 hover:text-red-800 transition-colors">
+                    <button @click="remove(i.itemId)" class="text-red-600 hover:text-red-800 transition-colors">
                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -79,11 +82,15 @@
 <script>
 
 import lib from '@/scripts/lib';
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { cartAPI } from '@/api';
 import { useNotificationStore } from '@/stores/notification';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 export default {
+  components: {
+    ConfirmModal
+  },
   setup() {
     const notificationStore = useNotificationStore();
     const state = reactive({
@@ -91,11 +98,20 @@ export default {
       loading: true
     })
 
+    const showConfirmModal = ref(false);
+    const itemToRemove = ref(null);
+
     const load = async () => {
       try {
         state.loading = true;
         const { data } = await cartAPI.getCartItems();
-        console.log(data);
+        console.log('장바구니 데이터:', data);
+        console.log('데이터 타입:', typeof data);
+        console.log('데이터 길이:', data.length);
+        if (data.length > 0) {
+          console.log('첫 번째 아이템:', data[0]);
+          console.log('첫 번째 아이템 ID:', data[0].itemId);
+        }
         state.items = data;
       } catch (error) {
         console.error('장바구니 로딩 실패:', error);
@@ -104,14 +120,52 @@ export default {
       }
     }
 
-    const remove = async (itemId) => {
+    const remove = (itemId) => {
+      console.log('remove 함수 호출됨 - itemId:', itemId);
+      console.log('itemId 타입:', typeof itemId);
+
+      // itemId가 유효한지 확인
+      if (!itemId || itemId === 'undefined' || itemId === undefined) {
+        console.error('유효하지 않은 상품 ID:', itemId);
+        notificationStore.error('상품 ID가 유효하지 않습니다.');
+        return;
+      }
+
+      itemToRemove.value = itemId;
+      console.log('itemToRemove.value 설정됨:', itemToRemove.value);
+      showConfirmModal.value = true;
+    }
+
+    const confirmRemove = async () => {
       try {
-        await cartAPI.removeItem(itemId);
+        console.log('삭제 시도 - 상품 ID:', itemToRemove.value);
+
+        // itemToRemove.value가 유효한지 확인
+        if (!itemToRemove.value || itemToRemove.value === 'undefined' || itemToRemove.value === undefined) {
+          console.error('유효하지 않은 상품 ID:', itemToRemove.value);
+          notificationStore.error('상품 ID가 유효하지 않습니다.');
+          return;
+        }
+
+        await cartAPI.removeItem(itemToRemove.value);
+        console.log('삭제 성공');
         notificationStore.success('장바구니에서 상품이 제거되었습니다.');
         load();
+
+        // Header의 장바구니 개수 업데이트
+        window.dispatchEvent(new CustomEvent('cart-updated'));
       } catch (error) {
         console.error('상품 제거 실패:', error);
+        notificationStore.error('상품 제거에 실패했습니다.');
+      } finally {
+        showConfirmModal.value = false;
+        itemToRemove.value = null;
       }
+    }
+
+    const cancelRemove = () => {
+      showConfirmModal.value = false;
+      itemToRemove.value = null;
     }
 
     onMounted(() => {
@@ -119,7 +173,12 @@ export default {
     });
 
     return {
-      state, lib, remove
+      state,
+      lib,
+      remove,
+      showConfirmModal,
+      confirmRemove,
+      cancelRemove
     }
   }
 }

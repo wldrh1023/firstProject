@@ -235,6 +235,10 @@ export default {
 
         await ordersAPI.createOrder(args);
         notificationStore.success('주문이 완료되었습니다!');
+
+        // Header의 장바구니 개수 업데이트 (결제 후 장바구니가 비워지므로 0으로 설정)
+        window.dispatchEvent(new CustomEvent('cart-updated'));
+
         router.push({ path: "/orders" });
       } catch (error) {
         console.error('주문 처리 실패:', error);

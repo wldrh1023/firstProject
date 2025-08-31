@@ -53,6 +53,7 @@ public class OrderServiceImpl implements OrderService {
       newOrder.setCardNumber(request.getCardNumber());
       newOrder.setItems(request.getItems());
 
+      orderRepository.save(newOrder);
       cartRepository.deleteByMemberId(memberId);
       System.out.println("=== 주문 생성 완료 ===");
     } catch (Exception e) {

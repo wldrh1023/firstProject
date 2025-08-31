@@ -10,6 +10,7 @@ import com.cheonmyo.shop.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.cheonmyo.shop.util.BCryptUtil;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -22,10 +23,15 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public LoginResponseDto login(LoginRequestDto request) {
-    Member member = memberRepository.findByEmailAndPassword(request.getEmail(), request.getPassword());
+    Member member = memberRepository.findByEmail(request.getEmail());
 
     if (member == null) {
       throw new NotFoundException("회원 정보가 존재하지 않습니다.");
+    }
+
+    // BCrypt로 암호화된 비밀번호 검증
+    if (!BCryptUtil.check(request.getPassword(), member.getPassword())) {
+      throw new NotFoundException("비밀번호가 일치하지 않습니다.");
     }
 
     return new LoginResponseDto(member.getId(), "로그인에 성공했습니다.");
@@ -58,7 +64,9 @@ public class AccountServiceImpl implements AccountService {
     // 새 회원 생성
     Member newMember = new Member();
     newMember.setEmail(request.getEmail());
-    newMember.setPassword(request.getPassword());
+    // 비밀번호 BCrypt 암호화
+    String encodedPassword = BCryptUtil.hash(request.getPassword());
+    newMember.setPassword(encodedPassword);
 
     memberRepository.save(newMember);
 

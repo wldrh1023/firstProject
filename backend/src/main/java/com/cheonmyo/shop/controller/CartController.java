@@ -61,12 +61,26 @@ public class CartController {
       @PathVariable("itemId") int itemId,
       @CookieValue(value = "token", required = false) String token) {
 
+    System.out.println("=== 장바구니 삭제 요청 ===");
+    System.out.println("상품 ID: " + itemId);
+    System.out.println("토큰: " + token);
+
     if (!jwtService.isValid(token)) {
+      System.out.println("토큰이 유효하지 않음");
       throw new UnauthorizedException();
     }
 
     int memberId = jwtService.getId(token);
-    cartService.removeCartItem(memberId, itemId);
+    System.out.println("회원 ID: " + memberId);
+
+    try {
+      cartService.removeCartItem(memberId, itemId);
+      System.out.println("장바구니 삭제 성공");
+    } catch (Exception e) {
+      System.out.println("장바구니 삭제 실패: " + e.getMessage());
+      e.printStackTrace();
+      throw e;
+    }
 
     return new ResponseEntity<>(HttpStatus.OK);
   }

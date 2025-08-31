@@ -92,7 +92,7 @@ export default {
 <style scoped>
 .notification-container {
   position: fixed;
-  top: 1rem;
+  bottom: 1rem;
   right: 1rem;
   z-index: 9999;
   pointer-events: none;
@@ -131,12 +131,12 @@ export default {
 
 .notification-enter-from {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateY(100%);
 }
 
 .notification-leave-to {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateY(100%);
 }
 
 .notification-move {

@@ -233,16 +233,23 @@ export default {
     const loadOrders = async () => {
       try {
         state.loading = true;
+        state.orders = []; // 배열 초기화
         const { data } = await ordersAPI.getOrders();
-        for (let d of data) {
 
+        for (let d of data) {
           if (d.items) {
-            d.items = JSON.parse(d.items);
+            try {
+              d.items = JSON.parse(d.items);
+            } catch (e) {
+              console.error('JSON 파싱 오류:', e);
+              d.items = [];
+            }
           }
           state.orders.push(d);
         }
       } catch (error) {
         console.error('주문 내역 로딩 실패:', error);
+        notificationStore.error('주문 내역을 불러오는데 실패했습니다.');
       } finally {
         state.loading = false;
       }

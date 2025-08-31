@@ -5,25 +5,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OrderResponseDto {
   @JsonProperty("id")
-  private Integer id = 999;
+  private Integer id;
 
   @JsonProperty("name")
-  private String name = "테스트이름";
+  private String name;
 
   @JsonProperty("address")
-  private String address = "테스트주소";
+  private String address;
 
   @JsonProperty("payment")
-  private String payment = "테스트결제";
+  private String payment;
 
   @JsonProperty("cardNumber")
-  private String cardNumber = "테스트카드";
+  private String cardNumber;
 
   @JsonProperty("items")
-  private String items = "테스트상품";
-
-  @JsonProperty("date")
-  private String date = "2024-08-30";
+  private String items;
 
   public OrderResponseDto(Order order) {
     // 실제 데이터로 덮어쓰기
@@ -35,7 +32,6 @@ public class OrderResponseDto {
     this.items = order.getItems();
 
     // 날짜는 고정값 유지
-    this.date = "2024-08-30";
   }
 
   // Getter 메서드들
@@ -63,7 +59,4 @@ public class OrderResponseDto {
     return items;
   }
 
-  public String getDate() {
-    return date;
-  }
 }

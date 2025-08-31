@@ -58,6 +58,9 @@ export default {
         await cartAPI.addItem(itemId);
         notificationStore.success('장바구니에 추가되었습니다!');
         console.log('장바구니 추가 성공 - 상품 ID:', itemId);
+
+        // Header의 장바구니 개수 업데이트를 위한 이벤트 발생
+        window.dispatchEvent(new CustomEvent('cart-updated'));
       } catch (error) {
         console.error('장바구니 추가 실패:', error);
         // 에러는 이미 axios 인터셉터에서 처리됨

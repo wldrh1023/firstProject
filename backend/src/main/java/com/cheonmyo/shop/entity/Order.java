@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "orders")
-public class Order extends BaseEntity {
+public class Order {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +32,16 @@ public class Order extends BaseEntity {
   @Column(length = 500, nullable = false)
   private String items;
 
+  @Override
+  public String toString() {
+    return "Order{" +
+        "id=" + id +
+        ", memberId=" + memberId +
+        ", name='" + name + '\'' +
+        ", address='" + address + '\'' +
+        ", payment='" + payment + '\'' +
+        ", cardNumber='" + cardNumber + '\'' +
+        ", items='" + items + '\'' +
+        '}';
+  }
 }
