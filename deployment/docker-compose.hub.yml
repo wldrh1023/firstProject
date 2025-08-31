@@ -19,7 +19,7 @@ services:
       retries: 3
 
   backend:
-    image: wldrh1023/shop-backend:v1.2
+    image: wldrh1023/shop-backend:latest
     container_name: shop-backend
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: wldrh1023/shop-frontend:v1.2
+    image: wldrh1023/shop-frontend:latest
     container_name: shop-frontend
     ports:
       - "3000:3000"

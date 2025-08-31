@@ -79,6 +79,8 @@ public class AccountController {
     }
   }
 
+
+  // 헬스 체크
   @GetMapping("/api/health")
   public ResponseEntity<String> health() {
     System.out.println("=== 헬스체크 API 호출됨 ===");
