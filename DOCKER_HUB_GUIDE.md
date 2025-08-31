@@ -56,7 +56,7 @@ docker-compose -f docker-compose.hub.yml up -d
 
 - **프론트엔드**: http://localhost:3000
 - **백엔드 API**: http://localhost:8080
-- **데이터베이스**: localhost:3306 (root/1234)
+- **데이터베이스**: localhost:3307 (root/1234)
 
 ## 📊 테스트 계정
 
