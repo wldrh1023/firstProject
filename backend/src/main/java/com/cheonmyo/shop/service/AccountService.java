@@ -13,4 +13,6 @@ public interface AccountService {
   Integer checkAuth(String token);
 
   SignupResponseDto signup(SignupRequestDto request);
+
+  void withdraw(String token);
 }

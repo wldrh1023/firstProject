@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { authAPI } from "../api/auth";
+import { useNotificationStore } from "./notification";
 
 export const useAuthStore = defineStore("auth", () => {
   // State
@@ -35,6 +37,27 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  async function withdraw() {
+    const notificationStore = useNotificationStore();
+
+    try {
+      console.log("auth store withdraw 시작");
+      await authAPI.withdraw();
+      console.log("API 호출 성공");
+      logout(); // 로그아웃 처리
+      console.log("로그아웃 처리 완료");
+      notificationStore.success("회원탈퇴가 완료되었습니다.");
+      console.log("알림 표시 완료");
+      return true;
+    } catch (error) {
+      console.error("회원탈퇴 실패:", error);
+      const errorMessage =
+        error.response?.data || "회원탈퇴 중 오류가 발생했습니다.";
+      notificationStore.error(errorMessage);
+      return false;
+    }
+  }
+
   return {
     // State
     userId,
@@ -48,5 +71,6 @@ export const useAuthStore = defineStore("auth", () => {
     setAuth,
     logout,
     initAuth,
+    withdraw,
   };
 });

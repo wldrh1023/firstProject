@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,6 +59,24 @@ public class AccountController {
   public ResponseEntity<Integer> check(@CookieValue(value = "token", required = false) String token) {
     Integer memberId = accountService.checkAuth(token);
     return new ResponseEntity<>(memberId, HttpStatus.OK);
+  }
+
+  @DeleteMapping("/api/account/withdraw")
+  public ResponseEntity<String> withdraw(@CookieValue(value = "token", required = false) String token,
+      HttpServletResponse res) {
+    try {
+      accountService.withdraw(token);
+
+      // 쿠키 삭제
+      Cookie cookie = new Cookie("token", null);
+      cookie.setPath("/");
+      cookie.setMaxAge(0);
+      res.addCookie(cookie);
+
+      return new ResponseEntity<>("회원탈퇴가 완료되었습니다.", HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @GetMapping("/api/health")

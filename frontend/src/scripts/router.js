@@ -6,6 +6,7 @@ import Signup from "@/pages/Signup.vue";
 import Cart from "@/pages/Cart.vue";
 import Order from "@/pages/Order.vue";
 import Orders from "@/pages/Orders.vue";
+import Withdraw from "@/pages/Withdraw.vue";
 
 const routes = [
   {
@@ -41,6 +42,12 @@ const routes = [
     path: "/orders",
     component: Orders,
     name: "Orders",
+    meta: { requiresAuth: true }, // 인증 필요
+  },
+  {
+    path: "/withdraw",
+    component: Withdraw,
+    name: "Withdraw",
     meta: { requiresAuth: true }, // 인증 필요
   },
 ];

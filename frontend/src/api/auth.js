@@ -23,4 +23,9 @@ export const authAPI = {
   checkAuth: () => {
     return apiClient.get("/api/account/check");
   },
+
+  // 회원탈퇴
+  withdraw: () => {
+    return apiClient.delete("/api/account/withdraw");
+  },
 };

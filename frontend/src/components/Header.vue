@@ -79,6 +79,10 @@
                 class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-200">
                 로그아웃
               </button>
+              <router-link to="/withdraw"
+                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-200">
+                회원탈퇴
+              </router-link>
             </div>
           </div>
         </div>

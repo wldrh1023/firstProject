@@ -6,6 +6,7 @@ import com.cheonmyo.shop.dto.SignupRequestDto;
 import com.cheonmyo.shop.dto.SignupResponseDto;
 import com.cheonmyo.shop.entity.Member;
 import com.cheonmyo.shop.exception.NotFoundException;
+import com.cheonmyo.shop.exception.UnauthorizedException;
 import com.cheonmyo.shop.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +72,24 @@ public class AccountServiceImpl implements AccountService {
     memberRepository.save(newMember);
 
     return new SignupResponseDto("회원가입이 완료되었습니다.", true);
+  }
+
+  @Override
+  public void withdraw(String token) {
+    if (token == null || token.isEmpty()) {
+      throw new UnauthorizedException("로그인이 필요합니다.");
+    }
+
+    Claims claims = jwtService.getClaims(token);
+    if (claims == null) {
+      throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+    }
+
+    Integer memberId = Integer.parseInt(claims.get("id").toString());
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new NotFoundException("회원 정보를 찾을 수 없습니다."));
+
+    // 회원 삭제
+    memberRepository.delete(member);
   }
 }
