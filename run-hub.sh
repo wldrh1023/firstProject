@@ -1,36 +1,36 @@
 #!/bin/bash
 
-echo "🐳 Docker Hub 이미지로 쇼핑몰 프로젝트 실행 중..."
+echo "🐳 Docker Hub image run..."
 echo
 
-echo "📋 Docker 상태 확인..."
+echo "📋 Docker status check..."
 if ! command -v docker &> /dev/null; then
-    echo "❌ Docker가 설치되지 않았습니다. Docker를 설치해주세요."
+    echo "❌ Docker is not installed. Please install Docker."
     exit 1
 fi
 
 echo
-echo "🔧 Docker Hub 이미지 다운로드 중..."
+echo "🔧 Docker Hub image download..."
 docker pull wldrh1023/shop-backend:latest
 docker pull wldrh1023/shop-frontend:latest
 
 echo
-echo "🚀 프로젝트 실행 중..."
+echo "🚀 Project run..."
 docker-compose -f docker-compose.hub.yml up -d
 
 echo
-echo "⏳ 서비스 시작 대기 중..."
+echo "⏳ Service start waiting..."
 sleep 15
 
 echo
-echo "🌐 접속 정보:"
-echo "   프론트엔드: http://localhost:3000"
-echo "   백엔드 API: http://localhost:8080"
+echo "🌐 Access information:"
+echo "   Frontend: http://localhost:3000"
+echo "   Backend API: http://localhost:8080"
 echo
-echo "📊 테스트 계정:"
-echo "   이메일: test@test.com"
-echo "   비밀번호: 1234"
+echo "📊 Test account:"
+echo "   Email: test@test.com"
+echo "   Password: 1234"
 echo
-echo "✅ 프로젝트가 성공적으로 실행되었습니다!"
+echo "✅ Project run successfully!"
 echo
-echo "📝 참고: 이 방법은 소스 코드 빌드 없이 바로 실행됩니다."
+echo "📝 Note: This method runs without building the source code."
